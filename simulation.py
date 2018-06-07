@@ -1,11 +1,16 @@
 from math import *
+import time
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import keyboard
 
 lr = 0.5  # distance from CoM to rear wheels
 lf = 0.5  # distance from CoM to front wheels
 
 dt = 0.1  # timestep
 
-N = 1000  # simulate for 1000 timesteps
+N = 300  # simulate for 1000 timesteps
 
 def f_prime(state, a, delta_f):
     x   = state[0]
@@ -44,6 +49,8 @@ def euler(state, state_dot, dt):
 def main():
     # define initial state
     state = [0, 0, 0, 0] 
+    x = []
+    y = []
 
     a = .1
     delta_f = .0
@@ -52,26 +59,45 @@ def main():
 
     # simulate for N steps with constant controls
     for i in range(N):
+        time.sleep(0.1)
+        if keyboard.is_pressed('q'):
+            print('left')
+            delta_f += 0.0001
+        elif keyboard.is_pressed('z'):
+            print('up')
+            a += 0.01
+        elif keyboard.is_pressed('d'):
+            print('right')
+            delta_f -= 0.0001
+        elif keyboard.is_pressed('s'):
+            print('down')
+            a -= 0.01
+        else:
+            if delta_f > 0.0:
+                delta_f -= 0.0001
+            elif delta_f < 0.0:
+                delta_f += 0.0001
         # get derivative
         state_dot = f_prime(state, a, delta_f)
 
         # integrate
         # state = state + state_dot*dt
-
+        x.append(state[0])
+        y.append(state[1])
         state = euler(state, state_dot, dt)
+        print(state)
         states.append(state)
+    plt.plot(x,y)
+    plt.savefig('myfig')
+    plt.show()
 
     # print resultng trajectory
     # TODO: add visualization
-    for s in states:
-        print(s)
+    """for s in states:
+        print(s)"""
 
 
 
 
 if __name__ == '__main__':
     main()
-
-
-
-    
