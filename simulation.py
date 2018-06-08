@@ -1,9 +1,10 @@
-from math import *
+from math import cos, sin, tan
 import time
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import keyboard
+import numpy as np
 
 lr = 0.5  # distance from CoM to rear wheels
 lf = 0.5  # distance from CoM to front wheels
@@ -97,7 +98,19 @@ def main():
         print(s)"""
 
 
+def window_stack(array, stepsize, width):
+    n = array.shape[0]
+    return np.hstack( array[i:1+n+i-width:stepsize] for i in range(0,width) )
 
+def last_window(array, size):
+    return array[-size:]
 
 if __name__ == '__main__':
     main()
+    # l = [[0,1],[2,3],[4,5],[6,7],[8,9],[10,11]]
+    # a = np.array(l)
+    # # # print(a)
+    # # slide_window = window_stack(a, 1, 4)
+    # # print(slide_window[0])
+    # arr = last_window(a, 4)
+    # print(arr)
