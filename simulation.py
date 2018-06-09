@@ -101,10 +101,8 @@ def main():
         random_y.append(random_state[1])
 
         state = euler(state, state_dot, dt)
-
-        print(random_state)
         random_state = euler(random_state,random_state_dot, dt)
-        #print(state)
+        print(state)
         print(random_state)
         print('......................')
         states.append(state)
