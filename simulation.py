@@ -12,7 +12,7 @@ lf = 0.5  # distance from CoM to front wheels
 
 dt = 0.1  # timestep
 
-N = 100  # simulate for 1000 timesteps
+N = 300  # simulate for 1000 timesteps
 
 w = 5 # size of window
 
@@ -69,54 +69,50 @@ def main():
     for i in range(N):
 
         if i % w == 0: # if window
-            random_state = [random_state[0], random_state[1],random.uniform(-state[2],state[2]), random.uniform(-state[3],state[3])]
+            random_state = state
+        time.sleep(0.1)
+        if keyboard.is_pressed('q'):
+            print('left')
+            delta_f += 0.0001
+        elif keyboard.is_pressed('z'):
+            print('up')
+            a += 0.01
+        elif keyboard.is_pressed('d'):
+            print('right')
+            delta_f -= 0.0001
+        elif keyboard.is_pressed('s'):
+            print('down')
+            a -= 0.01
         else:
-            time.sleep(0.1)
-            if keyboard.is_pressed('q'):
-                print('left')
-                delta_f += 0.0001
-            elif keyboard.is_pressed('z'):
-                print('up')
-                a += 0.01
-            elif keyboard.is_pressed('d'):
-                print('right')
+            if delta_f > 0.0:
                 delta_f -= 0.0001
-            elif keyboard.is_pressed('s'):
-                print('down')
-                a -= 0.01
-            else:
-                if delta_f > 0.0:
-                    delta_f -= 0.0001
-                elif delta_f < 0.0:
-                    delta_f += 0.0001
+            elif delta_f < 0.0:
+                delta_f += 0.0001
 
-            # get derivative
-            state_dot = f_prime(state, a, delta_f)
-            random_state_dot = f_prime(random_state, random.uniform(-a,a), random.uniform(-delta_f, delta_f))
+        # get derivative
+        state_dot = f_prime(state, a, delta_f)
+        random_state_dot = f_prime(random_state, random.uniform(-1,1), random.uniform(-1, 1))
 
-            # integrate
-            # state = state + state_dot*dt
-            x.append(state[0])
-            y.append(state[1])
-            random_x.append(random_state[0])
-            random_y.append(random_state[1])
+        # integrate
+        # state = state + state_dot*dt
+        x.append(state[0])
+        y.append(state[1])
+        random_x.append(random_state[0])
+        random_y.append(random_state[1])
 
-            state = euler(state, state_dot, dt)
+        state = euler(state, state_dot, dt)
 
-            print(random_state)
-            random_state = euler(random_state,random_state_dot, dt)
-            #print(state)
-            print(random_state)
-            print('......................')
-            states.append(state)
-            random_states.append(random_state)
-            
-    plt.plot(x,y)
-    plt.savefig('myfig')
-    plt.close()
+        print(random_state)
+        random_state = euler(random_state,random_state_dot, dt)
+        #print(state)
+        print(random_state)
+        print('......................')
+        states.append(state)
+        random_states.append(random_state)
 
     plt.plot(random_x,random_y)
-    plt.savefig('myfig_random')
+    plt.plot(x,y)
+    plt.savefig('myfig')
     # plt.show()
 
     # print resultng trajectory
