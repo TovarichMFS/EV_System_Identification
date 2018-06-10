@@ -12,7 +12,7 @@ lf = 0.5  # distance from CoM to front wheels
 
 dt = 0.1  # timestep
 
-N = 300  # simulate for 1000 timesteps
+N = 10  # simulate for 1000 timesteps
 
 w = 5 # size of window
 
@@ -34,14 +34,14 @@ def f_prime(state, a, delta_f):
     v_dot = a
 
 
-    state_dot = [x_dot, y_dot, psi_dot, v_dot]
+    state_dot = np.array([x_dot, y_dot, psi_dot, v_dot])
 
     return state_dot
 
 
 # implements f(t+1) = f(t) + f'(t)*dt
 def euler(state, state_dot, dt):
-    result = [0.0] * len(state)
+    result = np.array([0.0] * len(state))
 
     result[0] = state[0] + state_dot[0]*dt
     result[1] = state[1] + state_dot[1]*dt
@@ -52,8 +52,8 @@ def euler(state, state_dot, dt):
 
 def main():
     # define initial state
-    state = [0, 0, 0, 0] 
-    random_state = [0, 0, 0, 0] 
+    state = np.array([0, 0, 0, 0])
+    random_state = np.array([0, 0, 0, 0]) 
     x = []
     y = []
 
@@ -108,6 +108,12 @@ def main():
         states.append(state)
         random_states.append(random_state)
 
+
+    random_x = np.array(random_x)
+    random_y = np.array(random_y)
+    x = np.array(x)
+    y = np.array(y)
+    
     plt.plot(random_x,random_y)
     plt.plot(x,y)
     plt.savefig('myfig')
