@@ -126,6 +126,21 @@ def window_stack(array, stepsize, width):
 def last_window(array, size):
     return array[-size:]
 
+def cost_function(correct_stage, predicted_stage):
+    '''
+    This function calculates the Mean Squared Error given two sets of output values, 
+    one set corresponding to the correct values, the other set 
+    representing the output values predicted by a regression model
+    INPUT:
+        predicted_stage: a numpy.ndarray vector of type 'float' containing m predicted values
+        correct_stage: a numpy.ndarray vector of type 'float' containing m correct values
+    OUTPUT:
+        err: 'float' representing the Mean Squared Error
+    '''
+    err = np.mean(np.square(correct_stage - predicted_stage))
+    return err
+
+
 if __name__ == '__main__':
     main()
     # l = [[0,1],[2,3],[4,5],[6,7],[8,9],[10,11]]
