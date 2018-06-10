@@ -27,7 +27,7 @@ def f_prime(state, a, delta_f):
     else:
         beta = 0
 
-    x_dot = v*cos(psi+beta)
+    x_dot = v*cos(psi+beta) 
     y_dot = v*sin(psi+beta)
 
     psi_dot = v/lr*sin(beta)
@@ -120,11 +120,29 @@ def main():
 
 
 def window_stack(array, stepsize, width):
+    '''
+    This function creates a window stack from the array provided
+    INPUT:
+        array: a numpy.ndarray vector of type 'float' containing values
+        stepsize: float representing step size of the window
+        width : int representing the width of the width
+    OUTPUT:
+        ndarray of values divided into windows stacks
+    '''
     n = array.shape[0]
     return np.hstack( array[i:1+n+i-width:stepsize] for i in range(0,width))
 
-def last_window(array, size):
-    return array[-size:]
+def last_window(array, n):
+    '''
+    This function returns the last nth item in an array
+    INPUT:
+        array: a numpy.ndarray vector of type 'float' containing values
+        size : int representing the starting index of the window
+    OUTPUT:
+        ndarray of last nth items in the array
+    '''
+    return array[-n:]
+
 
 def cost_function(correct_stage, predicted_stage):
     '''
