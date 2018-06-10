@@ -12,7 +12,7 @@ lf = 0.5  # distance from CoM to front wheels
 
 dt = 0.1  # timestep
 
-N = 10  # simulate for 1000 timesteps
+N = 100  # simulate for 1000 timesteps
 
 w = 5 # size of window
 
@@ -113,7 +113,7 @@ def main():
     random_y = np.array(random_y)
     x = np.array(x)
     y = np.array(y)
-    
+
     plt.plot(random_x,random_y)
     plt.plot(x,y)
     plt.savefig('myfig')
