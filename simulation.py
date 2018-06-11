@@ -12,7 +12,7 @@ lf = 0.5  # distance from CoM to front wheels
 
 dt = 0.1  # timestep
 
-N = 300  # simulate for 1000 timesteps
+N = 50  # simulate for 1000 timesteps
 
 w = 5  # size of window
 
@@ -129,6 +129,9 @@ def main():
         random_states.append(random_state)
 
 
+    states = np.array(states)
+    random_states = np.array(random_states)
+
     random_x = np.array(random_x)
     random_y = np.array(random_y)
     x = np.array(x)
@@ -142,6 +145,7 @@ def main():
     #testing cost function
     print('cost value for x"s is {}'.format(cost_function(x,random_x)))
     print('cost value for y"s is {}'.format(cost_function(y,random_y)))
+    print('cost value for states is {}'.format(cost_function(states,random_states)))
 
     # print resultng trajectory
     # TODO: add visualization
@@ -188,9 +192,37 @@ def cost_function(correct_stage, predicted_stage):
     err = np.mean(np.square(correct_stage - predicted_stage))
     return err
 
+def create_windows(stages, n, exact=False):
+    '''
+    This function creates windows each of size n items from items in stages
+    INPUT:
+        stages : ndarray containing stages of car
+        n : int representing maximum number of stages each window can contain
+        exact: boolean requesting windows to have strictly n number of stages
+    OUTPUT:
+        windows : ndarray of windows each contains a maximum of n stages
+    '''
+    shape = stages.shape
+    windows = []
+    if not exact:
+        for i in range(shape[0]):
+            windows.append(stages[i:n+i])
+    else:
+        for i in range(shape[0] - n + 1):
+            windows.append(stages[i:n+i])
+    return windows
+
 
 if __name__ == '__main__':
-    main()
+    #stages = np.arange(0, 12)
+    stages = np.random.randn(*(7,4))
+    print(stages)
+    windows = create_windows(stages, 3, False)
+    print('...............')
+    for i in windows:
+        print(i)
+
+    #main()
     # l = [[0,1],[2,3],[4,5],[6,7],[8,9],[10,11]]
     # a = np.array(l)
     # # # print(a)
