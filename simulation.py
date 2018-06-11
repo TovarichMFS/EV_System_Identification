@@ -12,27 +12,36 @@ lf = 0.5  # distance from CoM to front wheels
 
 dt = 0.1  # timestep
 
-N = 100  # simulate for 1000 timesteps
+N = 300  # simulate for 1000 timesteps
 
-w = 5 # size of window
+w = 5  # size of window
+
 
 def f_prime(state, a, delta_f):
-    x   = state[0]
-    y   = state[1]
+    '''
+    This function computes the prime of a function 
+    INPUT:
+        state: a numpy.ndarray vector of type 'float' containing values represents f(t)
+        a: float representing acceleration
+        dt: float representing delta
+    OUTPUT:
+        state_dot: a numpy.ndarray vector of type 'float' containing values represents f'(t)
+    '''
+    x = state[0]
+    y = state[1]
     psi = state[2]
-    v   = state[3]
+    v = state[3]
 
     if abs(delta_f) > 0:
         beta = 1/tan(lr/(lf + lr)*tan(delta_f))
     else:
         beta = 0
 
-    x_dot = v*cos(psi+beta) 
+    x_dot = v*cos(psi+beta)
     y_dot = v*sin(psi+beta)
 
     psi_dot = v/lr*sin(beta)
     v_dot = a
-
 
     state_dot = np.array([x_dot, y_dot, psi_dot, v_dot])
 
@@ -41,6 +50,17 @@ def f_prime(state, a, delta_f):
 
 # implements f(t+1) = f(t) + f'(t)*dt
 def euler(state, state_dot, dt):
+    '''
+    This function evaluates the euler value given a state, state_dot and delta.
+    It evaluates f(t+1) = f(t) + f'(t)*dt
+    INPUT:
+        state: a numpy.ndarray vector of type 'float' containing values represents f(t)
+        state_dot: a numpy.ndarray vector of type 'float' containing values represents f'(t)
+        dt: float representing delta
+    OUTPUT:
+        result: ndarray of euler values
+    '''
+
     result = np.array([0.0] * len(state))
 
     result[0] = state[0] + state_dot[0]*dt
@@ -118,6 +138,10 @@ def main():
     plt.plot(x,y)
     plt.savefig('myfig')
     # plt.show()
+
+    #testing cost function
+    print('cost value for x"s is {}'.format(cost_function(x,random_x)))
+    print('cost value for y"s is {}'.format(cost_function(y,random_y)))
 
     # print resultng trajectory
     # TODO: add visualization
