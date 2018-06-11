@@ -210,6 +210,7 @@ def create_windows(stages, n, exact=False):
     else:
         for i in range(shape[0] - n + 1):
             windows.append(stages[i:n+i])
+    windows = np.array(windows)
     return windows
 
 
