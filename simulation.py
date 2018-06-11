@@ -7,17 +7,22 @@ import keyboard
 import numpy as np
 import random
 
-lr = 0.5  # distance from CoM to rear wheels
-lf = 0.5  # distance from CoM to front wheels
+
+p_true = [0.5,0.5]
+
+p = [0.1,0.2]
 
 dt = 0.1  # timestep
 
-N = 50  # simulate for 1000 timesteps
+N = 100  # simulate for 1000 timesteps
 
 w = 5  # size of window
 
+delta_f_list = []
+a_list = []
 
-def f_prime(state, a, delta_f):
+
+def f_prime(state, a, delta_f,p):
     '''
     This function computes the prime of a function 
     INPUT:
@@ -31,6 +36,9 @@ def f_prime(state, a, delta_f):
     y = state[1]
     psi = state[2]
     v = state[3]
+
+    lr = p[0]
+    lf = p[1]
 
     if abs(delta_f) > 0:
         beta = 1/tan(lr/(lf + lr)*tan(delta_f))
@@ -73,23 +81,20 @@ def euler(state, state_dot, dt):
 def main():
     # define initial state
     state = np.array([0, 0, 0, 0])
-    random_state = np.array([0, 0, 0, 0]) 
+    predicted_state = np.array([0, 0, 0, 0]) 
     x = []
     y = []
 
-    random_x = []
-    random_y = []
+    predicted_x = []
+    predicted_y = []
 
     a = .1
     delta_f = .0
 
     states = [state]
-    random_states = [random_state]
+    predicted_states = [predicted_state]
     # simulate for N steps with constant controls
     for i in range(N):
-
-        if i % w == 0: # if window
-            random_state = state
         time.sleep(0.1)
         if keyboard.is_pressed('q'):
             print('left')
@@ -109,43 +114,51 @@ def main():
             elif delta_f < 0.0:
                 delta_f += 0.0001
 
+        delta_f_list.append(delta_f)
+        a_list.append(a)
+
         # get derivative
-        state_dot = f_prime(state, a, delta_f)
-        random_state_dot = f_prime(random_state, random.uniform(-1,1), random.uniform(-1, 1))
+        state_dot = f_prime(state, a, delta_f,p_true)
+        predicted_state_dot = f_prime(state, a, delta_f,p)
 
         # integrate
         # state = state + state_dot*dt
         x.append(state[0])
         y.append(state[1])
-        random_x.append(random_state[0])
-        random_y.append(random_state[1])
+        predicted_x.append(predicted_state[0])
+        predicted_y.append(predicted_state[1])
 
         state = euler(state, state_dot, dt)
-        random_state = euler(random_state,random_state_dot, dt)
+        predicted_state = euler(state,predicted_state_dot, dt)
         print(state)
-        print(random_state)
+        print(predicted_state)
         print('......................')
         states.append(state)
-        random_states.append(random_state)
+        predicted_states.append(predicted_state)
 
 
     states = np.array(states)
-    random_states = np.array(random_states)
+    predicted_states = np.array(predicted_states)
 
-    random_x = np.array(random_x)
-    random_y = np.array(random_y)
+    predicted_x = np.array(predicted_x)
+    predicted_y = np.array(predicted_y)
     x = np.array(x)
     y = np.array(y)
 
-    plt.plot(random_x,random_y)
+    windows = create_windows(states, w, delta_f_list, a_list)
+    predicted_windows = create_windows(predicted_states, w, delta_f_list, a_list)
+    print(windows)
+    print(predicted_windows)
+
+    plt.plot(predicted_x,predicted_y)
     plt.plot(x,y)
     plt.savefig('myfig')
     # plt.show()
 
     #testing cost function
-    print('cost value for x"s is {}'.format(cost_function(x,random_x)))
-    print('cost value for y"s is {}'.format(cost_function(y,random_y)))
-    print('cost value for states is {}'.format(cost_function(states,random_states)))
+    print('cost value for x"s is {}'.format(cost_function(x,predicted_x)))
+    print('cost value for y"s is {}'.format(cost_function(y,predicted_y)))
+    print('cost value for states is {}'.format(cost_function(states,predicted_states)))
 
     # print resultng trajectory
     # TODO: add visualization
@@ -192,7 +205,7 @@ def cost_function(correct_stage, predicted_stage):
     err = np.mean(np.square(correct_stage - predicted_stage))
     return err
 
-def create_windows(stages, n, exact=False):
+def create_windows(stages, n, delta_f_list, a_list, exact=True):
     '''
     This function creates windows each of size n items from items in stages
     INPUT:
@@ -206,24 +219,28 @@ def create_windows(stages, n, exact=False):
     windows = []
     if not exact:
         for i in range(shape[0]):
-            windows.append(stages[i:n+i])
+            windows.append([stages[i:n+i],a_list[i],delta_f_list[i]])
     else:
         for i in range(shape[0] - n + 1):
-            windows.append(stages[i:n+i])
+            windows.append([stages[i:n+i],a_list[i],delta_f_list[i]])
     windows = np.array(windows)
     return windows
 
 
 if __name__ == '__main__':
     #stages = np.arange(0, 12)
-    stages = np.random.randn(*(7,4))
+    """stages = np.random.randn(*(7,4))
+    delta_f_list = np.random.randn(7)
+    a_list = np.random.randn(7)
     print(stages)
-    windows = create_windows(stages, 3, False)
+    print(delta_f_list)
+    print(a_list)
+    windows = create_windows(stages, 3, delta_f_list, a_list, False)
     print('...............')
     for i in windows:
-        print(i)
+        print(i)"""
 
-    #main()
+    main()
     # l = [[0,1],[2,3],[4,5],[6,7],[8,9],[10,11]]
     # a = np.array(l)
     # # # print(a)
