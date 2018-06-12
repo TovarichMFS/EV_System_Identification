@@ -14,7 +14,7 @@ p = [0.1,0.2]
 
 dt = 0.1  # timestep
 
-N = 100  # simulate for 1000 timesteps
+N = 500  # simulate for 1000 timesteps
 
 w = 5  # size of window
 
@@ -96,6 +96,8 @@ def main():
     # simulate for N steps with constant controls
     for i in range(N):
         time.sleep(0.1)
+        if i % w ==0:
+            predicted_state = state
         if keyboard.is_pressed('q'):
             print('left')
             delta_f += 0.0001
@@ -119,7 +121,7 @@ def main():
 
         # get derivative
         state_dot = f_prime(state, a, delta_f,p_true)
-        predicted_state_dot = f_prime(state, a, delta_f,p)
+        predicted_state_dot = f_prime(predicted_state, a, delta_f,p)
 
         # integrate
         # state = state + state_dot*dt
@@ -129,7 +131,7 @@ def main():
         predicted_y.append(predicted_state[1])
 
         state = euler(state, state_dot, dt)
-        predicted_state = euler(state,predicted_state_dot, dt)
+        predicted_state = euler(predicted_state ,predicted_state_dot, dt)
         print(state)
         print(predicted_state)
         print('......................')
