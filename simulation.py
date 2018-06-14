@@ -10,16 +10,19 @@ import random
 
 p_true = [0.5, 0.5]
 
-p = [0.1, 0.2]
+p = [0.4, 0.4]
 
 dt = 0.1  # timestep
 
-N = 50  # simulate for N timesteps
+N = 100  # simulate for N timesteps
 
 w = 5  # size of window
 
 delta_f_list = []
 a_list = []
+
+predicted_x = []
+predicted_y = []
 
 
 def f_prime(state, a, delta_f, p):
@@ -88,13 +91,14 @@ def main():
     a = .1
     delta_f = .0
 
+    delta_f_list.append(delta_f)
+    a_list.append(a)
+
     states = [state]
 
     # simulate for N steps with constant controls
     for i in range(N):
-        time.sleep(0.1)
-        if i % w == 0:
-            predicted_state = state
+        time.sleep(dt)
         if keyboard.is_pressed('q'):
             print('left')
             delta_f += 0.0001
@@ -126,38 +130,35 @@ def main():
 
         state = euler(state, state_dot, dt)
 
-        # print(state)
-        # print(predicted_state)
-        # print('......................')
+        print(state)
+        print('......................')
         states.append(state)
 
     states = np.array(states)
-    predicted_states = np.array(predicted_states)
 
-    predicted_x = np.array(predicted_x)
-    predicted_y = np.array(predicted_y)
     x = np.array(x)
     y = np.array(y)
 
     windows = create_windows(states, w, delta_f_list, a_list)
-    predicted_windows = create_windows(
-        predicted_states, w, delta_f_list, a_list)
+    predicted_windows = predict_windows(windows)
 
-    first_stage_in_window = windows[0][0]
-    print(first_stage_in_window)
+    #first_state_in_window = windows[0][0]
+    #print(first_state_in_window)
     # print(windows)
     # print(predicted_windows)
 
     plt.plot(predicted_x, predicted_y)
     plt.plot(x, y)
+    """for i in range(len(predicted_x)):
+        plt.plot(predicted_x[i:i+w],predicted_y[i:i+w])"""
     plt.savefig('myfig')
     # plt.show()
 
     # testing cost function
-    print('cost value for x"s is {}'.format(cost_function(x, predicted_x)))
+    """print('cost value for x"s is {}'.format(cost_function(x, predicted_x)))
     print('cost value for y"s is {}'.format(cost_function(y, predicted_y)))
     print('cost value for states is {}'.format(
-        cost_function(states, predicted_states)))
+        cost_function(states, predicted_states)))"""
 
     # print resultng trajectory
     # TODO: add visualization
@@ -167,29 +168,28 @@ def main():
 
 def predict_windows(windows):
     predicted_windows = []
-    predicted_x = []
-    predicted_y = []
+    global predicted_x
+    global predicted_y
     for window in windows:
         first_item_in_window = window[0]
-        state = predicted_state[0]
-        delta_f = predicted_state[1]
-        a = predicted_state[2]
+        predicted_state = first_item_in_window[0]
+        delta_f = first_item_in_window[2]
+        a = first_item_in_window[1]
         predicted_states = [predicted_state]
 
-        predicted_states.append(first_item_in_window)
+        #predicted_states.append(first_item_in_window)
 
         rest_of_stages_in_window = window[1:]
 
         for state_and_parameters in rest_of_stages_in_window:
-            state = state_and_parameters[0]
-            delta_new = state_and_parameters[1]
-            a_new = state_and_parameters[2]
+            delta_f = state_and_parameters[2]
+            a = state_and_parameters[1]
             
-            predicted_state_dot = f_prime(state_and_parameters, a, delta_f, p)
-            predicted_x.append(predicted_state_dot[0])
-            predicted_y.append(predicted_state_dot[1])
-            predicted_state = euler(predicted_state_dot, first_item_in_window, dt)
-            predicted_states.append(state_and_parameters)
+            predicted_state_dot = f_prime(predicted_state, a, delta_f, p)
+            predicted_x.append(predicted_state[0])
+            predicted_y.append(predicted_state[1])
+            predicted_state = euler(predicted_state, predicted_state_dot, dt)
+            predicted_states.append([predicted_state,delta_f,a])
 
         predicted_windows.append(predicted_states)
     predicted_windows = np.array(predicted_windows)
@@ -251,10 +251,22 @@ def create_windows(stages, n, delta_f_list, a_list, exact=True):
     windows = []
     if not exact:
         for i in range(shape[0]):
-            windows.append([stages[i:n+i], a_list[i], delta_f_list[i]])
+            window_states = stages[i:n+i]
+            pos = i
+            window = []
+            for s in window_states:
+                window.append([s, a_list[pos], delta_f_list[pos]])
+                pos += 1
+            windows.append(window)
     else:
         for i in range(shape[0] - n + 1):
-            windows.append([stages[i:n+i], a_list[i], delta_f_list[i]])
+            window_states = stages[i:n+i]
+            pos = i
+            window = []
+            for s in window_states:
+                window.append([s, a_list[pos], delta_f_list[pos]])
+                pos += 1
+            windows.append(window)
     windows = np.array(windows)
     return windows
 
