@@ -10,7 +10,7 @@ import random
 
 p_true = [0.5, 0.5]
 
-p = [0.4, 0.4]
+p = [0.01, 0.01]
 
 dt = 0.1  # timestep
 
@@ -27,11 +27,12 @@ predicted_y = []
 
 def f_prime(state, a, delta_f, p):
     '''
-    This function computes the prime of a function 
+    This function computes the derivative of a function 
     INPUT:
         state: a numpy.ndarray vector of type 'float' containing values represents f(t)
         a: float representing acceleration
-        dt: float representing delta
+        delta_f: float representing delta
+        p: List of float representing parameters of vehicle
     OUTPUT:
         state_dot: a numpy.ndarray vector of type 'float' containing values represents f'(t)
     '''
@@ -130,8 +131,8 @@ def main():
 
         state = euler(state, state_dot, dt)
 
-        print(state)
-        print('......................')
+        # print(state)
+        # print('......................')
         states.append(state)
 
     states = np.array(states)
@@ -140,12 +141,15 @@ def main():
     y = np.array(y)
 
     windows = create_windows(states, w, delta_f_list, a_list)
+
+
     predicted_windows = predict_windows(windows)
 
     #first_state_in_window = windows[0][0]
     #print(first_state_in_window)
-    # print(windows)
-    # print(predicted_windows)
+    # print(windows.shape)
+    # print('................')
+    # print(predicted_windows.shape)
 
     plt.plot(predicted_x, predicted_y)
     plt.plot(x, y)
@@ -171,29 +175,38 @@ def predict_windows(windows):
     global predicted_x
     global predicted_y
     for window in windows:
-        first_item_in_window = window[0]
-        predicted_state = first_item_in_window[0]
-        delta_f = first_item_in_window[2]
+        #get first item in window list
+        first_item_in_window = window[0] 
+        predicted_state = first_item_in_window[0] 
         a = first_item_in_window[1]
-        predicted_states = [predicted_state]
+        delta_f = first_item_in_window[2]
+        
+        #predicted_states = [(predicted_state, a, delta_f)]
+        predicted_states = []
+        predicted_state_dot = f_prime(predicted_state, a, delta_f, p)
+        predicted_x.append(predicted_state[0])
+        predicted_y.append(predicted_state[1])
 
+        predicted_state = euler(predicted_state, predicted_state_dot, dt)
+        predicted_states.append([predicted_state,a, delta_f])
         #predicted_states.append(first_item_in_window)
 
         rest_of_stages_in_window = window[1:]
 
         for state_and_parameters in rest_of_stages_in_window:
-            delta_f = state_and_parameters[2]
+            predicted_state = state_and_parameters[0]
             a = state_and_parameters[1]
+            delta_f = state_and_parameters[2]
             
             predicted_state_dot = f_prime(predicted_state, a, delta_f, p)
+
             predicted_x.append(predicted_state[0])
             predicted_y.append(predicted_state[1])
             predicted_state = euler(predicted_state, predicted_state_dot, dt)
-            predicted_states.append([predicted_state,delta_f,a])
-
+            predicted_states.append([predicted_state,a, delta_f])
         predicted_windows.append(predicted_states)
     predicted_windows = np.array(predicted_windows)
-    return predict_windows
+    return predicted_windows
 
         
 def window_stack(array, stepsize, width):
