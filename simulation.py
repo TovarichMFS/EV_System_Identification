@@ -140,7 +140,7 @@ def main():
     x = np.array(x)
     y = np.array(y)
 
-    windows = create_windows(states, w, delta_f_list, a_list)
+    windows = create_windows(states, w, delta_f_list, a_list, True)
 
 
     predicted_windows = predict_windows(windows)
@@ -151,7 +151,12 @@ def main():
     # print('................')
     # print(predicted_windows.shape)
 
+    print('size of predicted x is : {}'.format(len(predicted_x)))
+    print('size of predicted y is : {}'.format(len(predicted_y)))
     plt.plot(predicted_x, predicted_y)
+
+    print('size of x  is : {}'.format(len(x)))
+    print('size of y is : {}'.format(len(y)))
     plt.plot(x, y)
     """for i in range(len(predicted_x)):
         plt.plot(predicted_x[i:i+w],predicted_y[i:i+w])"""
