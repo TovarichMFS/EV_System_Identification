@@ -21,6 +21,8 @@ w = 5  # size of window
 delta_f_list = []
 a_list = []
 
+scoring_array = []
+
 predicted_x = []
 predicted_y = []
 
@@ -141,22 +143,23 @@ def main():
     y = np.array(y)
 
     windows = create_windows(states, w, delta_f_list, a_list, True)
-
-
     predicted_windows = predict_windows(windows)
+
+
+
 
     #first_state_in_window = windows[0][0]
     #print(first_state_in_window)
-    # print(windows.shape)
-    # print('................')
-    # print(predicted_windows.shape)
+    print(windows.shape)
+    print('................')
+    print(predicted_windows.shape)
 
-    print('size of predicted x is : {}'.format(len(predicted_x)))
-    print('size of predicted y is : {}'.format(len(predicted_y)))
+    # print('size of predicted x is : {}'.format(len(predicted_x)))
+    # print('size of predicted y is : {}'.format(len(predicted_y)))
     plt.plot(predicted_x, predicted_y)
 
-    print('size of x  is : {}'.format(len(x)))
-    print('size of y is : {}'.format(len(y)))
+    # print('size of x  is : {}'.format(len(x)))
+    # print('size of y is : {}'.format(len(y)))
     plt.plot(x, y)
     """for i in range(len(predicted_x)):
         plt.plot(predicted_x[i:i+w],predicted_y[i:i+w])"""
@@ -186,14 +189,14 @@ def predict_windows(windows):
         a = first_item_in_window[1]
         delta_f = first_item_in_window[2]
         
-        #predicted_states = [(predicted_state, a, delta_f)]
-        predicted_states = []
-        predicted_state_dot = f_prime(predicted_state, a, delta_f, p)
-        predicted_x.append(predicted_state[0])
-        predicted_y.append(predicted_state[1])
+        predicted_states = [(predicted_state, a, delta_f)]
+        # predicted_states = []
+        # predicted_state_dot = f_prime(predicted_state, a, delta_f, p)
+        # predicted_x.append(predicted_state[0])
+        # predicted_y.append(predicted_state[1])
 
-        predicted_state = euler(predicted_state, predicted_state_dot, dt)
-        predicted_states.append([predicted_state,a, delta_f])
+        # predicted_state = euler(predicted_state, predicted_state_dot, dt)
+        # predicted_states.append([predicted_state,a, delta_f])
         #predicted_states.append(first_item_in_window)
 
         rest_of_stages_in_window = window[1:]
