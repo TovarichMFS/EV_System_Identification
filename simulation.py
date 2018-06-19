@@ -14,7 +14,7 @@ p = [0.01, 0.01]
 
 dt = 0.1  # timestep
 
-N = 100  # simulate for N timesteps
+N = 10  # simulate for N timesteps
 
 w = 5  # size of window
 
@@ -87,7 +87,7 @@ def euler(state, state_dot, dt):
 
 def main():
     # define initial state
-    state = np.array([0, 0, 0, 0])
+    state = (0, 0, 0, 0)
     x = []
     y = []
 
@@ -143,16 +143,16 @@ def main():
     y = np.array(y)
 
     windows = create_windows(states, w, delta_f_list, a_list, True)
-    predicted_windows = predict_windows(windows)
+    predicted_windows = predict_windows(windows, states)
 
 
 
 
     #first_state_in_window = windows[0][0]
     #print(first_state_in_window)
-    print(windows.shape)
-    print('................')
-    print(predicted_windows.shape)
+    # print(windows.shape)
+    # print('................')
+    # print(predicted_windows.shape)
 
     # print('size of predicted x is : {}'.format(len(predicted_x)))
     # print('size of predicted y is : {}'.format(len(predicted_y)))
@@ -164,6 +164,8 @@ def main():
     """for i in range(len(predicted_x)):
         plt.plot(predicted_x[i:i+w],predicted_y[i:i+w])"""
     plt.savefig('myfig')
+
+    print(scoring_array)
     # plt.show()
 
     # testing cost function
@@ -178,11 +180,11 @@ def main():
         print(s)"""
 
 
-def predict_windows(windows):
+def predict_windows(windows, states):
     predicted_windows = []
     global predicted_x
     global predicted_y
-    for window in windows:
+    for i, window in enumerate(windows):
         #get first item in window list
         first_item_in_window = window[0] 
         predicted_state = first_item_in_window[0] 
@@ -190,14 +192,11 @@ def predict_windows(windows):
         delta_f = first_item_in_window[2]
         
         predicted_states = [(predicted_state, a, delta_f)]
-        # predicted_states = []
-        # predicted_state_dot = f_prime(predicted_state, a, delta_f, p)
+
+
         predicted_x.append(predicted_state[0])
         predicted_y.append(predicted_state[1])
 
-        # predicted_state = euler(predicted_state, predicted_state_dot, dt)
-        # predicted_states.append([predicted_state,a, delta_f])
-        #predicted_states.append(first_item_in_window)
 
         rest_of_stages_in_window = window[1:]
 
@@ -212,7 +211,17 @@ def predict_windows(windows):
             predicted_y.append(predicted_state[1])
             predicted_state = euler(predicted_state, predicted_state_dot, dt)
             predicted_states.append([predicted_state,a, delta_f])
-        predicted_windows.append(predicted_states)
+        
+        
+        predicted_states = np.array(predicted_states)
+        #compute cost
+        states_pred = predicted_states[:,0]  #set all states
+        # print(states_pred.shape)
+        # print(state_considered.shape)
+        # print('.................')
+        scoring_array.append(cost_function(states_pred, states[i:w+i].T))
+
+        predicted_windows.append(predicted_states) 
     predicted_windows = np.array(predicted_windows)
     return predicted_windows
 
