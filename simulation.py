@@ -192,8 +192,8 @@ def predict_windows(windows):
         predicted_states = [(predicted_state, a, delta_f)]
         # predicted_states = []
         # predicted_state_dot = f_prime(predicted_state, a, delta_f, p)
-        # predicted_x.append(predicted_state[0])
-        # predicted_y.append(predicted_state[1])
+        predicted_x.append(predicted_state[0])
+        predicted_y.append(predicted_state[1])
 
         # predicted_state = euler(predicted_state, predicted_state_dot, dt)
         # predicted_states.append([predicted_state,a, delta_f])
