@@ -14,7 +14,7 @@ p = [0.01, 0.01]
 
 dt = 0.1  # timestep
 
-N = 10  # simulate for N timesteps
+N = 100  # simulate for N timesteps
 
 w = 5  # size of window
 
@@ -74,16 +74,8 @@ def euler(state, state_dot, dt):
     OUTPUT:
         result: ndarray of euler values
     '''
-
-    result = np.array([0.0] * len(state))
-
-    result[0] = state[0] + state_dot[0]*dt
-    result[1] = state[1] + state_dot[1]*dt
-    result[2] = state[2] + state_dot[2]*dt
-    result[3] = state[3] + state_dot[3]*dt
-
+    result = state + state_dot * dt
     return result
-
 
 def main():
     # define initial state
