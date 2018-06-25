@@ -14,9 +14,11 @@ p = [0.01, 0.01]
 
 dt = 0.1  # timestep
 
-N = 100  # simulate for N timesteps
+N = 100 # simulate for N timesteps
 
 w = 5  # size of window
+
+n = 10 #windows to visualized
 
 delta_f_list = []
 a_list = []
@@ -137,39 +139,39 @@ def main():
     windows = create_windows(states, w, delta_f_list, a_list, True)
     predicted_windows = predict_windows(windows, states)
 
+    print('windows size: {}'.format(windows.shape))
+    print('predicted_windows size: {}'.format(predicted_windows.shape))
+
+    x_new = []
+    y_new = []
+    x_pred = []
+    y_pred = []
+
+    for i in range(0,windows.shape[0]+1, n):
+        # print(i)
+        window = windows[i]
+        window_pred = predicted_windows[i]
+
+        states = [item[0] for item in window]
+        states_pred = [item[0] for item in window_pred]
+
+        [(x_new.append(item[0]), y_new.append(item[1])) for item in states]
+        [(x_pred.append(item[0]), y_pred.append(item[1])) for item in states_pred]
+
+    # print(len(x_new))
+    # print(len(y_new))
+    plt.plot(x_new,y_new)
+    plt.plot(x_pred,y_pred)
 
 
+    #Uncomment to view actual and predicted trajectory
+    # plt.plot(predicted_x, predicted_y)
+    # plt.plot(x, y)
 
-    #first_state_in_window = windows[0][0]
-    #print(first_state_in_window)
-    # print(windows.shape)
-    # print('................')
-    # print(predicted_windows.shape)
-
-    # print('size of predicted x is : {}'.format(len(predicted_x)))
-    # print('size of predicted y is : {}'.format(len(predicted_y)))
-    plt.plot(predicted_x, predicted_y)
-
-    # print('size of x  is : {}'.format(len(x)))
-    # print('size of y is : {}'.format(len(y)))
-    plt.plot(x, y)
-    """for i in range(len(predicted_x)):
-        plt.plot(predicted_x[i:i+w],predicted_y[i:i+w])"""
     plt.savefig('myfig')
 
-    print(scoring_array)
+    # print(scoring_array)
     # plt.show()
-
-    # testing cost function
-    """print('cost value for x"s is {}'.format(cost_function(x, predicted_x)))
-    print('cost value for y"s is {}'.format(cost_function(y, predicted_y)))
-    print('cost value for states is {}'.format(
-        cost_function(states, predicted_states)))"""
-
-    # print resultng trajectory
-    # TODO: add visualization
-    """for s in states:
-        print(s)"""
 
 
 def predict_windows(windows, states):
@@ -294,23 +296,5 @@ def create_windows(stages, n, delta_f_list, a_list, exact=True):
 
 
 if __name__ == '__main__':
-    #stages = np.arange(0, 12)
-    """stages = np.random.randn(*(7,4))
-    delta_f_list = np.random.randn(7)
-    a_list = np.random.randn(7)
-    print(stages)
-    print(delta_f_list)
-    print(a_list)
-    windows = create_windows(stages, 3, delta_f_list, a_list, False)
-    print('...............')
-    for i in windows:
-        print(i)"""
-
     main()
-    # l = [[0,1],[2,3],[4,5],[6,7],[8,9],[10,11]]
-    # a = np.array(l)
-    # # # print(a)
-    # # slide_window = window_stack(a, 1, 4)
-    # # print(slide_window[0])
-    # arr = last_window(a, 4)
-    # print(arr)
+
