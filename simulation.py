@@ -3,6 +3,7 @@ import time
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import keyboard
 import numpy as np
 import random
@@ -14,11 +15,11 @@ p = [0.01, 0.01]
 
 dt = 0.1  # timestep
 
-N = 100 # simulate for N timesteps
+N = 100  # simulate for N timesteps
 
 w = 5  # size of window
 
-n = 10 #windows to visualized
+n = 10  # windows to visualized
 
 delta_f_list = []
 a_list = []
@@ -78,6 +79,7 @@ def euler(state, state_dot, dt):
     '''
     result = state + state_dot * dt
     return result
+
 
 def main():
     # define initial state
@@ -139,15 +141,47 @@ def main():
     windows = create_windows(states, w, delta_f_list, a_list, True)
     predicted_windows = predict_windows(windows, states)
 
-    print('windows size: {}'.format(windows.shape))
-    print('predicted_windows size: {}'.format(predicted_windows.shape))
+    visualize_windows(windows, predicted_windows)
 
-    x_new = []
-    y_new = []
+
+def visualize_windows(windows, predicted_windows):
+    x_actual, y_actual, x_pred, y_pred = extract_stages(
+        windows, n, predicted_windows)
+
+    x_actual_splits = [x_actual[i*w:(i+1)*w] for i in range(len(x_actual)//w)]
+    y_actual_splits = [y_actual[i*w:(i+1)*w] for i in range(len(y_actual)//w)]
+
+    x_pred_splits = [x_pred[i*w:(i+1)*w] for i in range(len(x_pred)//w)]
+    y_pred_splits = [y_pred[i*w:(i+1)*w] for i in range(len(y_pred)//w)]
+
+    for x_actual_val, y_actual_val, x_pred_val, y_pred_val in zip(x_actual_splits,
+                                                                  y_actual_splits, x_pred_splits, y_pred_splits):
+        plt.plot(x_actual_val, y_actual_val, color='red')
+        plt.plot(x_pred_val, y_pred_val, color='blue')
+    else:
+        plt.plot(x_actual_val, y_actual_val,
+                 color='red', label='actual trajectory')
+        plt.plot(x_pred_val, y_pred_val, color='blue',
+                 label='predicted trajectory')
+
+    # plt.plot(x_new,y_new)
+    # plt.plot(x_pred,y_pred, color='blue')
+
+    # Uncomment to view actual and predicted trajectory
+    # plt.plot(predicted_x, predicted_y)
+    # plt.plot(x, y)
+
+    plt.legend(loc='best')
+    plt.savefig('myfig')
+
+
+def extract_stages(windows, n, predicted_windows):
+    x_actual = []
+    y_actual = []
     x_pred = []
     y_pred = []
 
-    for i in range(0,windows.shape[0]+1, n):
+    for i in range(0, windows.shape[0]+1, n):
         # print(i)
         window = windows[i]
         window_pred = predicted_windows[i]
@@ -155,20 +189,11 @@ def main():
         states = [item[0] for item in window]
         states_pred = [item[0] for item in window_pred]
 
-        [(x_new.append(item[0]), y_new.append(item[1])) for item in states]
-        [(x_pred.append(item[0]), y_pred.append(item[1])) for item in states_pred]
-
-    # print(len(x_new))
-    # print(len(y_new))
-    plt.plot(x_new,y_new)
-    plt.plot(x_pred,y_pred)
-
-
-    #Uncomment to view actual and predicted trajectory
-    # plt.plot(predicted_x, predicted_y)
-    # plt.plot(x, y)
-
-    plt.savefig('myfig')
+        [(x_actual.append(item[0]), y_actual.append(item[1]))
+         for item in states]
+        [(x_pred.append(item[0]), y_pred.append(item[1]))
+         for item in states_pred]
+    return x_actual, y_actual, x_pred, y_pred
 
     # print(scoring_array)
     # plt.show()
@@ -179,18 +204,16 @@ def predict_windows(windows, states):
     global predicted_x
     global predicted_y
     for i, window in enumerate(windows):
-        #get first item in window list
-        first_item_in_window = window[0] 
-        predicted_state = first_item_in_window[0] 
+        # get first item in window list
+        first_item_in_window = window[0]
+        predicted_state = first_item_in_window[0]
         a = first_item_in_window[1]
         delta_f = first_item_in_window[2]
-        
-        predicted_states = [(predicted_state, a, delta_f)]
 
+        predicted_states = [(predicted_state, a, delta_f)]
 
         predicted_x.append(predicted_state[0])
         predicted_y.append(predicted_state[1])
-
 
         rest_of_stages_in_window = window[1:]
 
@@ -198,52 +221,25 @@ def predict_windows(windows, states):
             predicted_state = state_and_parameters[0]
             a = state_and_parameters[1]
             delta_f = state_and_parameters[2]
-            
+
             predicted_state_dot = f_prime(predicted_state, a, delta_f, p)
 
             predicted_x.append(predicted_state[0])
             predicted_y.append(predicted_state[1])
             predicted_state = euler(predicted_state, predicted_state_dot, dt)
-            predicted_states.append([predicted_state,a, delta_f])
-        
-        
+            predicted_states.append([predicted_state, a, delta_f])
+
         predicted_states = np.array(predicted_states)
-        #compute cost
-        states_pred = predicted_states[:,0]  #set all states
+        # compute cost
+        states_pred = predicted_states[:, 0]  # set all states
         # print(states_pred.shape)
         # print(state_considered.shape)
         # print('.................')
         scoring_array.append(cost_function(states_pred, states[i:w+i].T))
 
-        predicted_windows.append(predicted_states) 
+        predicted_windows.append(predicted_states)
     predicted_windows = np.array(predicted_windows)
     return predicted_windows
-
-        
-def window_stack(array, stepsize, width):
-    '''
-    This function creates a window stack from the array provided
-    INPUT:
-        array: a numpy.ndarray vector of type 'float' containing values
-        stepsize: float representing step size of the window
-        width : int representing the width of the width
-    OUTPUT:
-        ndarray of values divided into windows stacks
-    '''
-    n = array.shape[0]
-    return np.hstack(array[i:1+n+i-width:stepsize] for i in range(0, width))
-
-
-def last_window(array, n):
-    '''
-    This function returns the last nth item in an array
-    INPUT:
-        array: a numpy.ndarray vector of type 'float' containing values
-        size : int representing the starting index of the window
-    OUTPUT:
-        ndarray of last nth items in the array
-    '''
-    return array[-n:]
 
 
 def cost_function(correct_stage, predicted_stage):
@@ -297,4 +293,3 @@ def create_windows(stages, n, delta_f_list, a_list, exact=True):
 
 if __name__ == '__main__':
     main()
-
