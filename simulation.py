@@ -141,10 +141,17 @@ def main():
     windows = create_windows(states, w, delta_f_list, a_list, True)
     predicted_windows = predict_windows(windows, states)
 
-    visualize_windows(windows, predicted_windows)
+    draw_windows(windows, predicted_windows)
+    draw_tragetory(x,y, predicted_x, predicted_y)
 
+def draw_tragetory(x,y,x_pred, y_pred, name = 'tragetory'):
+    plt.plot(x_pred, y_pred, color='blue', label='predicted trajectory')
+    plt.plot(x, y, color='red', label='actual trajectory')
+    plt.legend(loc='best')
+    plt.savefig(name)
+    plt.close()
 
-def visualize_windows(windows, predicted_windows):
+def draw_windows(windows, predicted_windows, name='windows'):
     x_actual, y_actual, x_pred, y_pred = extract_stages(
         windows, n, predicted_windows)
 
@@ -160,19 +167,13 @@ def visualize_windows(windows, predicted_windows):
         plt.plot(x_pred_val, y_pred_val, color='blue')
     else:
         plt.plot(x_actual_val, y_actual_val,
-                 color='red', label='actual trajectory')
+                 color='red', label='actual windows')
         plt.plot(x_pred_val, y_pred_val, color='blue',
-                 label='predicted trajectory')
-
-    # plt.plot(x_new,y_new)
-    # plt.plot(x_pred,y_pred, color='blue')
-
-    # Uncomment to view actual and predicted trajectory
-    # plt.plot(predicted_x, predicted_y)
-    # plt.plot(x, y)
-
+                 label='predicted windows')
     plt.legend(loc='best')
-    plt.savefig('myfig')
+    plt.savefig(name)
+    plt.close()
+
 
 
 def extract_stages(windows, n, predicted_windows):
