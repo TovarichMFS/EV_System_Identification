@@ -7,6 +7,7 @@ import matplotlib as mpl
 import keyboard
 import numpy as np
 import random
+from math import sqrt
 
 
 p_true = [0.5, 0.5]
@@ -141,8 +142,8 @@ def main():
     windows = create_windows(states, w, delta_f_list, a_list, True)
     predicted_windows = predict_windows(windows, states)
 
-    draw_windows(windows, predicted_windows)
-    draw_tragetory(x,y, predicted_x, predicted_y)
+    draw_windows(windows, predicted_windows, name='windows')
+    draw_tragetory(x,y, predicted_x, predicted_y, name = 'tragetory')
 
 def draw_tragetory(x,y,x_pred, y_pred, name = 'tragetory'):
     plt.plot(x_pred, y_pred, color='blue', label='predicted trajectory')
@@ -161,19 +162,22 @@ def draw_windows(windows, predicted_windows, name='windows'):
     x_pred_splits = [x_pred[i*w:(i+1)*w] for i in range(len(x_pred)//w)]
     y_pred_splits = [y_pred[i*w:(i+1)*w] for i in range(len(y_pred)//w)]
 
-    for x_actual_val, y_actual_val, x_pred_val, y_pred_val in zip(x_actual_splits,
-                                                                  y_actual_splits, x_pred_splits, y_pred_splits):
-        plt.plot(x_actual_val, y_actual_val, color='red')
-        plt.plot(x_pred_val, y_pred_val, color='blue')
-    else:
-        plt.plot(x_actual_val, y_actual_val,
-                 color='red', label='actual windows')
-        plt.plot(x_pred_val, y_pred_val, color='blue',
-                 label='predicted windows')
-    plt.legend(loc='best')
+    nrows = len(x_pred_splits)
+    # ax = plt.subplots(nrows=nrows, ncols=1)[1]
+    ax = plt.subplots(nrows=nrows // 2, ncols=2)[1]
+    i = 0
+    for row in ax:
+        for col in row:
+            col.plot(x_pred_splits[i],y_pred_splits[i], color='blue', label='predicted windows')
+            col.plot(x_actual_splits[i],y_actual_splits[i], color='red', label='actual windows')
+            i +=1
+    
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=2)
+    
+    plt.tight_layout()
+    
     plt.savefig(name)
     plt.close()
-
 
 
 def extract_stages(windows, n, predicted_windows):
@@ -233,9 +237,7 @@ def predict_windows(windows, states):
         predicted_states = np.array(predicted_states)
         # compute cost
         states_pred = predicted_states[:, 0]  # set all states
-        # print(states_pred.shape)
-        # print(state_considered.shape)
-        # print('.................')
+
         scoring_array.append(cost_function(states_pred, states[i:w+i].T))
 
         predicted_windows.append(predicted_states)
