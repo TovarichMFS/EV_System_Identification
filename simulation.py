@@ -143,14 +143,24 @@ def main():
     predicted_windows = predict_windows(windows, states)
 
     draw_windows(windows, predicted_windows, name='windows')
-    draw_tragetory(x,y, predicted_x, predicted_y, name = 'tragetory')
+    draw_tragetory(x, y, predicted_x, predicted_y, name='tragetory')
+    draw_cost_function(scoring_array, name='cost_function')
 
-def draw_tragetory(x,y,x_pred, y_pred, name = 'tragetory'):
+
+def draw_cost_function(scoring_array, name='cost_function'):
+    scoring_array = np.array(scoring_array)
+    plt.plot(scoring_array[:,0], scoring_array[:,1], color='red')
+    plt.savefig(name)
+    plt.close()
+
+
+def draw_tragetory(x, y, x_pred, y_pred, name='tragetory'):
     plt.plot(x_pred, y_pred, color='blue', label='predicted trajectory')
     plt.plot(x, y, color='red', label='actual trajectory')
     plt.legend(loc='best')
     plt.savefig(name)
     plt.close()
+
 
 def draw_windows(windows, predicted_windows, name='windows'):
     x_actual, y_actual, x_pred, y_pred = extract_stages(
@@ -163,19 +173,23 @@ def draw_windows(windows, predicted_windows, name='windows'):
     y_pred_splits = [y_pred[i*w:(i+1)*w] for i in range(len(y_pred)//w)]
 
     nrows = len(x_pred_splits)
-    # ax = plt.subplots(nrows=nrows, ncols=1)[1]
     ax = plt.subplots(nrows=nrows // 2, ncols=2)[1]
     i = 0
     for row in ax:
         for col in row:
-            col.plot(x_pred_splits[i],y_pred_splits[i], color='blue', label='predicted windows')
-            col.plot(x_actual_splits[i],y_actual_splits[i], color='red', label='actual windows')
-            i +=1
-    
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=2)
-    
+            col.plot(x_pred_splits[i], y_pred_splits[i],
+                     color='blue', label='predicted windows')
+            col.plot(x_actual_splits[i], y_actual_splits[i],
+                     color='red', label='actual windows')
+            # plt.text(0.5, 0.5, 'cost is {}'.format(cost_function(np.hstack((x_pred_splits[i], y_pred_splits[i])), np.hstack(
+            #     (x_actual_splits[i], y_actual_splits[i])))), horizontalalignment='center', verticalalignment='center')
+            i += 1
+
+    plt.legend(loc='upper center', bbox_to_anchor=(
+        0.5, -0.05), fancybox=True, shadow=True, ncol=2)
+
     plt.tight_layout()
-    
+
     plt.savefig(name)
     plt.close()
 
@@ -199,9 +213,6 @@ def extract_stages(windows, n, predicted_windows):
         [(x_pred.append(item[0]), y_pred.append(item[1]))
          for item in states_pred]
     return x_actual, y_actual, x_pred, y_pred
-
-    # print(scoring_array)
-    # plt.show()
 
 
 def predict_windows(windows, states):
