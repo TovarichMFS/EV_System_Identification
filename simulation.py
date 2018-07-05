@@ -14,13 +14,13 @@ p_true = [0.5, 0.5]
 
 p = [0.01, 0.01]
 
-dt = 0.1  # timestep
+dt = 0.01  # timestep
 
-N = 100  # simulate for N timesteps
+N = 1000  # simulate for N timesteps
 
-w = 5  # size of window
+w = 50  # size of window
 
-n = 10  # windows to visualized
+n = 200  # windows to visualized
 
 delta_f_list = []
 a_list = []
@@ -84,7 +84,8 @@ def euler(state, state_dot, dt):
 
 def main():
     # define initial state
-    state = (0, 0, 0, 0)
+
+    state = (0, 0, 0, 0)   # (x,y, psi, v)
     x = []
     y = []
 
@@ -145,26 +146,36 @@ def main():
     draw_windows(windows, predicted_windows, name='windows')
     draw_tragetory(x, y, predicted_x, predicted_y, name='tragetory')
     draw_cost_function(scoring_array, name='cost_function')
+    optimize_cost_function()
+
+def optimize_cost_function():
+    '''
+    This is function minimizes the mean square error.
+    '''
+    pass
 
 
 def draw_cost_function(scoring_array, name='cost_function'):
     scoring_array = np.array(scoring_array)
-    plt.plot(scoring_array[:,0], scoring_array[:,1], color='red')
-    plt.savefig(name)
-    plt.close()
-
-
-def draw_tragetory(x, y, x_pred, y_pred, name='tragetory'):
-    plt.plot(x_pred, y_pred, color='blue', label='predicted trajectory')
-    plt.plot(x, y, color='red', label='actual trajectory')
+    plt.plot(scoring_array[:, 0],  label='x')
+    plt.plot(scoring_array[:, 1], label='y')
+    plt.plot(scoring_array[:, 2], label='psi')
+    plt.plot(scoring_array[:, 3], label='v')
     plt.legend(loc='best')
     plt.savefig(name)
     plt.close()
 
 
-def draw_windows(windows, predicted_windows, name='windows'):
-    x_actual, y_actual, x_pred, y_pred = extract_stages(
-        windows, n, predicted_windows)
+def draw_tragetory(x, y, x_pred, y_pred, name='tragetory', actual_label='actual trajectory', pred_label='predicted trajectory'):
+    plt.plot(x_pred, y_pred, color='blue', label=pred_label)
+    plt.plot(x, y, color='red', label=actual_label)
+    plt.legend(loc='best')
+    plt.savefig(name)
+    plt.close()
+
+
+def draw_windows(windows, predicted_windows, name='windows', actual_win_label='actual windows', pred_win_label= 'predicted windows'):
+    x_actual, y_actual, x_pred, y_pred = extract_stages(windows, n, predicted_windows)
 
     x_actual_splits = [x_actual[i*w:(i+1)*w] for i in range(len(x_actual)//w)]
     y_actual_splits = [y_actual[i*w:(i+1)*w] for i in range(len(y_actual)//w)]
@@ -178,11 +189,10 @@ def draw_windows(windows, predicted_windows, name='windows'):
     for row in ax:
         for col in row:
             col.plot(x_pred_splits[i], y_pred_splits[i],
-                     color='blue', label='predicted windows')
+                     color='blue', label=pred_win_label)
             col.plot(x_actual_splits[i], y_actual_splits[i],
-                     color='red', label='actual windows')
-            # plt.text(0.5, 0.5, 'cost is {}'.format(cost_function(np.hstack((x_pred_splits[i], y_pred_splits[i])), np.hstack(
-            #     (x_actual_splits[i], y_actual_splits[i])))), horizontalalignment='center', verticalalignment='center')
+                     color='red', label=actual_win_label)
+            col.axis('equal')
             i += 1
 
     plt.legend(loc='upper center', bbox_to_anchor=(
