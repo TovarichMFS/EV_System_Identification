@@ -8,6 +8,8 @@ import keyboard
 import numpy as np
 import random
 from math import sqrt
+import scipy
+
 
 
 p_true = [0.5, 0.5]
@@ -140,27 +142,48 @@ def main():
     x = np.array(x)
     y = np.array(y)
 
+
     windows = create_windows(states, w, delta_f_list, a_list, True)
     predicted_windows = predict_windows(windows, states)
+    
 
     draw_windows(windows, predicted_windows, name='windows')
     draw_tragetory(x, y, predicted_x, predicted_y, name='tragetory')
     draw_cost_function(scoring_array, name='cost_function')
-    optimize_cost_function()
+    #optimize_cost_function(cost_matrix)
 
 def optimize_cost_function():
     '''
     This is function minimizes the mean square error.
     '''
+    scipy.optimize.least_squares()
+
+
+def jacobian_function(x):
+    return None
+
+
+
+def generate_jacobian_matrix(cost_matrix):
+    '''
+    This fucntion computes the Jacobian of the cost_matrix
+    INPUT:
+        cost_matrix : ndarray matrix of type 'float' containing cost of individual points
+    OUTPUT:
+        jacobian : ndarray matrix of 
+    '''
     pass
+
+
 
 
 def draw_cost_function(scoring_array, name='cost_function'):
     scoring_array = np.array(scoring_array)
-    plt.plot(scoring_array[:, 0],  label='x')
-    plt.plot(scoring_array[:, 1], label='y')
-    plt.plot(scoring_array[:, 2], label='psi')
-    plt.plot(scoring_array[:, 3], label='v')
+    # plt.plot(scoring_array[:, 0],  label='x')
+    # plt.plot(scoring_array[:, 1], label='y')
+    # plt.plot(scoring_array[:, 2], label='psi')
+    # plt.plot(scoring_array[:, 3], label='v')
+    plt.plot(scoring_array, label='cost')
     plt.legend(loc='best')
     plt.savefig(name)
     plt.close()
@@ -245,8 +268,6 @@ def predict_windows(windows, states):
 
         for state_and_parameters in rest_of_stages_in_window:
             predicted_state = state_and_parameters[0]
-            a = state_and_parameters[1]
-            delta_f = state_and_parameters[2]
 
             predicted_state_dot = f_prime(predicted_state, a, delta_f, p)
 
@@ -254,32 +275,39 @@ def predict_windows(windows, states):
             predicted_y.append(predicted_state[1])
             predicted_state = euler(predicted_state, predicted_state_dot, dt)
             predicted_states.append([predicted_state, a, delta_f])
+            a = state_and_parameters[1]
+            delta_f = state_and_parameters[2]
+
 
         predicted_states = np.array(predicted_states)
         # compute cost
         states_pred = predicted_states[:, 0]  # set all states
 
-        scoring_array.append(cost_function(states_pred, states[i:w+i].T))
+        scoring_array.append(cost_function(states_pred, states[i:w+i]))
 
         predicted_windows.append(predicted_states)
     predicted_windows = np.array(predicted_windows)
     return predicted_windows
 
 
-def cost_function(correct_stage, predicted_stage):
+def cost_function(actual_stages, predicted_states):
     '''
     This function calculates the Mean Squared Error given two sets of output values, 
     one set corresponding to the correct values, the other set 
     representing the output values predicted by a regression model
     INPUT:
-        predicted_stage: a numpy.ndarray vector of type 'float' containing m predicted values
-        correct_stage: a numpy.ndarray vector of type 'float' containing m correct values
+        predicted_states: a numpy.ndarray vector of type 'float' containing m predicted values
+        actual_stages: a numpy.ndarray vector of type 'float' containing m correct values
     OUTPUT:
         err: 'float' representing the Mean Squared Error
     '''
-    err = np.mean(np.square(correct_stage - predicted_stage))
-    return err
-
+    n = actual_stages.shape[0]
+    constant = 1 / (2 * n)
+    diff = 0.0
+    for i in range(n):
+        diff += np.mean(np.square(actual_stages[i] - predicted_states[i]))
+    cost = constant * diff
+    return cost
 
 def create_windows(stages, n, delta_f_list, a_list, exact=True):
     '''
@@ -315,5 +343,17 @@ def create_windows(stages, n, delta_f_list, a_list, exact=True):
     return windows
 
 
+
+
 if __name__ == '__main__':
     main()
+    # states = np.array([ [0,0,1,1], [1,2,5,2] ])
+    # pred_states = np.array([ [1,2,4,6], [1,2,1,1] ])
+
+    # # states = np.array([ [0,0,1,1], [1,2,5,2] ])
+    # # pred_states = np.array([ [1,1,0,0], [1,2,6,1] ])
+
+    # states = np.array([ [0,0,1,1], [1,2,5,2] ])
+    # pred_states = np.array([ [0,0,1,1], [1,2,5,2] ])
+
+    # print(updated_cost_function(states, pred_states))
