@@ -152,27 +152,31 @@ def main():
     draw_cost_function(scoring_array, name='cost_function')
     #optimize_cost_function(cost_matrix)
 
-def optimize_cost_function():
+
+a = 
+delta_f = 
+X0 = 
+def func2(p, a, df, X0):
+    optimize_cost_function(p)
+    
+
+def func(p, ):
+    global a
+    global delta_f
+    global X0
+    tpred = (X0, a, delta_f, p)
+    N = cost_function(t_pred, t_obs)
+    return N
+
+
+def optimize_cost_function(p):
     '''
     This is function minimizes the mean square error.
     '''
-    scipy.optimize.least_squares()
+    p = [1.05, 1.05]
+    p_prime = scipy.optimize.least_squares(func, p)
+    return p_prime
 
-
-def jacobian_function(x):
-    return None
-
-
-
-def generate_jacobian_matrix(cost_matrix):
-    '''
-    This fucntion computes the Jacobian of the cost_matrix
-    INPUT:
-        cost_matrix : ndarray matrix of type 'float' containing cost of individual points
-    OUTPUT:
-        jacobian : ndarray matrix of 
-    '''
-    pass
 
 
 
@@ -283,7 +287,7 @@ def predict_windows(windows, states):
         # compute cost
         states_pred = predicted_states[:, 0]  # set all states
 
-        scoring_array.append(cost_function(states_pred, states[i:w+i]))
+        # scoring_array.append(cost_function(states_pred, states[i:w+i]))
 
         predicted_windows.append(predicted_states)
     predicted_windows = np.array(predicted_windows)
