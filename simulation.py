@@ -351,13 +351,4 @@ def create_windows(stages, n, delta_f_list, a_list, exact=True):
 
 if __name__ == '__main__':
     main()
-    # states = np.array([ [0,0,1,1], [1,2,5,2] ])
-    # pred_states = np.array([ [1,2,4,6], [1,2,1,1] ])
-
-    # # states = np.array([ [0,0,1,1], [1,2,5,2] ])
-    # # pred_states = np.array([ [1,1,0,0], [1,2,6,1] ])
-
-    # states = np.array([ [0,0,1,1], [1,2,5,2] ])
-    # pred_states = np.array([ [0,0,1,1], [1,2,5,2] ])
-
-    # print(updated_cost_function(states, pred_states))
+    

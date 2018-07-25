@@ -2,6 +2,7 @@
 # import tqdm
 import numpy as np
 from math import *
+import time
 
 from scipy.optimize import least_squares
 from mpl_toolkits.mplot3d import Axes3D
@@ -61,6 +62,7 @@ def euler(state, state_dot, dt):
     return result
 
 def cost_function(actual_stages, predicted_states):
+    # print('shape of actual_stage is {} and predicted is {}'.format(actual_stages.shape, predicted_states.shape))
     '''
     This function calculates the Mean Squared Error given two sets of output values, 
     one set corresponding to the correct values, the other set 
@@ -89,8 +91,17 @@ def create_window(win_size, p, x0, dt):
         x = euler(x, dx, dt)
         result.append(x)
 
-    return result
+    return np.array(result)
 
+
+def func(p):
+    predicted = create_window(window_size, p, x, dt)
+    cost = cost_function(observed, predicted)
+    return cost
+
+def optimize_model(func, initial_guess):
+    result = least_squares(func, initial_guess )
+    return result
 
 
 p_true = [1.0, 1.0]
@@ -104,53 +115,71 @@ x = [0, 0, 0, 10]
 observed = create_window(window_size, p_true, x, dt)
 predicted = create_window(window_size, p0, x, dt)
 
+#initial_guess = [0.2, 0.3,4,5]
+initial_guess = np.array([0.2, 0.4])
 
 observed = np.array(observed)
-# predicted = np.array(predicted)
+predicted = np.array(predicted)
 
-# plt.plot(observed[:, 0], observed[:, 1])
-# plt.plot(predicted[:, 0], predicted[:, 1])
-# plt.show()
+optimized_model = optimize_model(func, initial_guess)
+
+predicted_model = create_window(window_size, optimized_model.x, x, dt)
+
+# cost_function(observed, predicted)
+# print(predicted_model)
+print(optimized_model)
+# xx = optimized_model.x
+# yy = optimized_model.grad
+plt.plot(observed[:, 0], observed[:, 1], label='observed model')
+plt.plot(predicted[:, 0], predicted[:, 1], label='predicted')
+plt.plot(predicted_model[:, 0], predicted_model[:, 1], label='optimized model')
+# plt.plot(predicted_model[:,0], predicted_model[:,1])
+plt.legend(loc='best')
+# plt.plot(yy)
+plt.show()
 
 
 # print(cost_function(observed, predicted))
 
 
 
-def func(p):
-    predicted = create_window(window_size, p, x, dt)
-    cost = cost_function(observed, predicted)
-    return cost
 
 
-steps_p0 = 100
-steps_p1 = 100
+# steps_p0 = 10
+# steps_p1 = 10
 
-grid_p0 = []
-grid_p1 = []
-value = []
+# grid_p0 = []
+# grid_p1 = []
+# value = []
 
-dp0 = 0.01
-dp1 = 0.01
-
-
-for i in range(steps_p0):
-    for j in range(steps_p1):
-        grid_p0.append(dp0*i + 0.5)
-        grid_p1.append(dp1*j + 0.5)
-
-        value.append(func([grid_p0[-1], grid_p1[-1]]))
+# dp0 = 0.01
+# dp1 = 0.01
 
 
-print(value)
+# for i in range(steps_p0):
+#     for j in range(steps_p1):
+#         grid_p0.append(dp0*i + 0.5)
+#         grid_p1.append(dp1*j + 0.5)
+#         # print(grid_p0[-1])
+#         # print(grid_p1[-1])
+#         model = optimize_model(func, [grid_p0[-1], grid_p1[-1]])
+#         print(model)
+#         time.sleep(1)
+        
+        # value.append(func([grid_p0[-1], grid_p1[-1]]))
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
 
-surf = ax.plot_surface(np.array(grid_p0), np.array(grid_p1), np.array(value),
-                       linewidth=0, antialiased=False)
 
-plt.show()
+# print(len(value))
+# plt.plot(grid_p1)
+# plt.show()
+# fig = plt.figure()
+# ax = fig.gca(projection='3d')
+
+# surf = ax.plot_surface(np.array(grid_p0), np.array(grid_p1), np.array(value),
+#                        linewidth=0, antialiased=False)
+
+# plt.show()
 
 
 
