@@ -85,6 +85,10 @@ def euler(state, state_dot, dt):
 
 
 def main():
+    '''
+    This is the function that simulate and exexutes our implementation 
+    all necessary functions when needed.
+    '''
     # define initial state
 
     state = (0, 0, 0, 0)   # (x,y, psi, v)
@@ -153,35 +157,15 @@ def main():
     #optimize_cost_function(cost_matrix)
 
 
-a = 
-delta_f = 
-X0 = 
-def func2(p, a, df, X0):
-    optimize_cost_function(p)
-    
-
-def func(p, ):
-    global a
-    global delta_f
-    global X0
-    tpred = (X0, a, delta_f, p)
-    N = cost_function(t_pred, t_obs)
-    return N
-
-
-def optimize_cost_function(p):
-    '''
-    This is function minimizes the mean square error.
-    '''
-    p = [1.05, 1.05]
-    p_prime = scipy.optimize.least_squares(func, p)
-    return p_prime
-
-
-
 
 
 def draw_cost_function(scoring_array, name='cost_function'):
+    '''
+    This function plot the cost function 
+    INPUT:
+        scoring_array: ndarray containing the various cost values at different stages when the vehicle moves
+        name: str filename to save the plot as.
+    '''
     scoring_array = np.array(scoring_array)
     # plt.plot(scoring_array[:, 0],  label='x')
     # plt.plot(scoring_array[:, 1], label='y')
@@ -194,6 +178,17 @@ def draw_cost_function(scoring_array, name='cost_function'):
 
 
 def draw_tragetory(x, y, x_pred, y_pred, name='tragetory', actual_label='actual trajectory', pred_label='predicted trajectory'):
+    '''
+    This function plot the actual and predicted trajectories of the vehicle
+    INPUT:
+        x: array of shape (n,) of x-coordinates for actual trajectory
+        y: array of shape (n,) of y-coordinates for actual trajectory
+        x_pred: array of shape (n,) of x-coordinates for predicted trajectory
+        y_pred: array of shape (n,) of x-coordinates for predicted trajectory
+        name: str filename to save plot file as. Default is 'tragetory'
+        actual_label: str label for actual trajectory, default is 'actual trajectory'
+        pred_label: str label for predicted trajectory, default is 'predicted trajectory' 
+    '''
     plt.plot(x_pred, y_pred, color='blue', label=pred_label)
     plt.plot(x, y, color='red', label=actual_label)
     plt.legend(loc='best')
@@ -202,6 +197,15 @@ def draw_tragetory(x, y, x_pred, y_pred, name='tragetory', actual_label='actual 
 
 
 def draw_windows(windows, predicted_windows, name='windows', actual_win_label='actual windows', pred_win_label= 'predicted windows'):
+    '''
+    This function plot the actual and predicted trajectories of the vehicle
+    INPUT:
+        windows: Actual trajectory of the vehicle 
+        predicted_windows: Predicted trajectory of the vehicle
+        name: Name to save plot file as. Default is windows
+        actual_win_label: str label for actual trajectory, default is actual windows
+        pred_win_label: str label for predicted trajectory, default is predicted windows 
+    '''
     x_actual, y_actual, x_pred, y_pred = extract_stages(windows, n, predicted_windows)
 
     x_actual_splits = [x_actual[i*w:(i+1)*w] for i in range(len(x_actual)//w)]
@@ -232,6 +236,19 @@ def draw_windows(windows, predicted_windows, name='windows', actual_win_label='a
 
 
 def extract_stages(windows, n, predicted_windows):
+    '''
+    This function extracts the X and Y coordinates of the actual and predicted trajectories. 
+    INPUT:
+        windows: Actual trajectory of the vehicle
+        predicted_windows: Predicted trajectory of the vehicle
+        n: Number of stages to consider
+    OUTPUT:
+        x_actual: array of shape (n,) of x-coordinates for actual trajectory
+        y_actual: array of shape (n,) of y-coordinates for actual trajectory
+        x_pred: array of shape (n,) of x-coordinates for predicted trajectory
+        y_pred: array of shape (n,) of x-coordinates for predicted trajectory
+
+    '''
     x_actual = []
     y_actual = []
     x_pred = []
@@ -253,6 +270,14 @@ def extract_stages(windows, n, predicted_windows):
 
 
 def predict_windows(windows, states):
+    '''
+    This function predicts trajectory of a vehicle based on its actual trajectory.
+    INPUT:
+        windows: Actual trajectory windows of the vehicle. ndarray of states 
+        states: Actual states of the vehicle found in windows
+    OUTPUT: 
+        predicted_windows: Predicted trajectory windows of the vehicle. ndarray of states
+    '''
     predicted_windows = []
     global predicted_x
     global predicted_y
@@ -346,9 +371,36 @@ def create_windows(stages, n, delta_f_list, a_list, exact=True):
     windows = np.array(windows)
     return windows
 
+def func(p):
+    '''
+    Function which computes the vector of residuals, with the signature fun(p, *args, **kwargs), 
+    i.e., the minimization proceeds with respect to its first argument. The argument p passed to 
+    this function is an ndarray of shape (n,) (never a scalar, even for n=1). It must return a 
+    1-d array_like of shape (m,) or a scalar. If the argument p is complex or the function fun 
+    returns complex residuals.
+    This function predicts the window using parameter p and computes the cost of the predicted window.
+    INPUT:
+        p: passed to this function is an ndarray of shape (n,)
+    OUTPUT:
+        cost: 'float' representing the Mean Squared Error (cost of predicted and actual)
+    '''
+    predicted = create_window(window_size, p, x, dt)
+    cost = cost_function(observed, predicted)
+    return cost
+
+def optimize_model(func, initial_guess):
+    '''
+    This function optimizes our cost function so as to adjust the predicted trajectory to the actual trajectory. 
+    INPUT:
+        func : Function which computes the vector of residuals, with the signature fun(p, *args, **kwargs)
+        initial_guess : Initial guess of parameters usually numpy 1-d ndarray 
+    OUTPUT:
+        result: OptimizeResult from the scipy least square optimization
+    '''
+    result = least_squares(func, initial_guess )
+    return result
 
 
 
 if __name__ == '__main__':
     main()
-    

@@ -1,4 +1,6 @@
-
+'''
+This is a sample program to help us test the optimization of our model
+'''
 # import tqdm
 import numpy as np
 from math import *
@@ -83,6 +85,16 @@ def cost_function(actual_stages, predicted_states):
 
 
 def create_window(win_size, p, x0, dt):
+    '''
+    This function creates windows each of size win_size items using parameter p, initial point x0 and delta dt
+    INPUT:
+        win_size : int representing the size of the window
+        p : i-d representing the parameters of the vehicle
+        x0: 1-d array containing the starting stage of the vehicle
+        df: float representing delta
+    OUTPUT:
+        result : ndarray of stages representing trajectory of the vehicle.
+    '''
     result = [x0]
 
     for i in range(window_size):
@@ -95,11 +107,31 @@ def create_window(win_size, p, x0, dt):
 
 
 def func(p):
+    '''
+    Function which computes the vector of residuals, with the signature fun(p, *args, **kwargs), 
+    i.e., the minimization proceeds with respect to its first argument. The argument p passed to 
+    this function is an ndarray of shape (n,) (never a scalar, even for n=1). It must return a 
+    1-d array_like of shape (m,) or a scalar. If the argument p is complex or the function fun 
+    returns complex residuals.
+    This function predicts the window using parameter p and computes the cost of the predicted window.
+    INPUT:
+        p: passed to this function is an ndarray of shape (n,)
+    OUTPUT:
+        cost: 'float' representing the Mean Squared Error (cost of predicted and actual)
+    '''
     predicted = create_window(window_size, p, x, dt)
     cost = cost_function(observed, predicted)
     return cost
 
 def optimize_model(func, initial_guess):
+    '''
+    This function optimizes our cost function so as to adjust the predicted trajectory to the actual trajectory. 
+    INPUT:
+        func : Function which computes the vector of residuals, with the signature fun(p, *args, **kwargs)
+        initial_guess : Initial guess of parameters usually numpy 1-d ndarray 
+    OUTPUT:
+        result: OptimizeResult from the scipy least square optimization
+    '''
     result = least_squares(func, initial_guess )
     return result
 
