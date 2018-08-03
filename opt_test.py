@@ -84,7 +84,7 @@ def cost_function(actual_stages, predicted_states):
     return cost
 
 
-def create_window(win_size, p, x0, dt):
+def create_window(window_size, p, x0, dt):
     '''
     This function creates windows each of size win_size items using parameter p, initial point x0 and delta dt
     INPUT:
@@ -136,14 +136,14 @@ def optimize_model(func, initial_guess):
     return result
 
 
-p_true = [1.0, 1.0]
+p_true = [1.0, 1.0]  #true parameters of the vehicle
 
-p0 = [3.0, 3.0]
+p0 = [3.0, 3.0]  #predicted parameters of the vehicle
 
-window_size = 40
-dt = 0.001
+window_size = 40 #size of window
+dt = 0.001   #turning angle -- delta
 
-x = [0, 0, 0, 10]
+x = [0, 0, 0, 10] #starting position, acceleration and angle of the vehicle
 observed = create_window(window_size, p_true, x, dt)
 predicted = create_window(window_size, p0, x, dt)
 
@@ -164,11 +164,12 @@ print(optimized_model)
 # yy = optimized_model.grad
 plt.plot(observed[:, 0], observed[:, 1], label='observed model')
 plt.plot(predicted[:, 0], predicted[:, 1], label='predicted')
-plt.plot(predicted_model[:, 0], predicted_model[:, 1], label='optimized model')
+# plt.plot(predicted_model[:, 0], predicted_model[:, 1], label='optimized model')
 # plt.plot(predicted_model[:,0], predicted_model[:,1])
 plt.legend(loc='best')
 # plt.plot(yy)
-plt.show()
+plt.savefig('figues0')
+# plt.show()
 
 
 # print(cost_function(observed, predicted))
